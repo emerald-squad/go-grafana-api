@@ -45,11 +45,18 @@ type SecureJSONData struct {
 	SecretKey string `json:"secretKey,omitempty"`
 }
 
-func (c *Client) NewDataSource(s *DataSource) (int64, error) {
+func (c *Client) NewDataSource(s *DataSource, orgID int64) (int64, error) {
+
 	data, err := json.Marshal(s)
 	if err != nil {
 		return 0, err
 	}
+
+	err = c.SwitchCurrentUserOrg(orgID)
+	if err != nil {
+		return 0, err
+	}
+
 	req, err := c.newRequest("POST", "/api/datasources", nil, bytes.NewBuffer(data))
 	if err != nil {
 		return 0, err
