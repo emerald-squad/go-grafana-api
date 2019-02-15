@@ -82,7 +82,13 @@ func (c *Client) NewDataSource(s *DataSource, orgID int64) (int64, error) {
 	return result.Id, err
 }
 
-func (c *Client) UpdateDataSource(s *DataSource) error {
+func (c *Client) UpdateDataSource(s *DataSource, orgID int64) error {
+
+	err := c.SwitchCurrentUserOrg(orgID)
+	if err != nil {
+		return err
+	}
+
 	path := fmt.Sprintf("/api/datasources/%d", s.Id)
 	data, err := json.Marshal(s)
 	if err != nil {
@@ -106,6 +112,7 @@ func (c *Client) UpdateDataSource(s *DataSource) error {
 
 func (c *Client) DataSource(id int64) (*DataSource, error) {
 	path := fmt.Sprintf("/api/datasources/%d", id)
+
 	req, err := c.newRequest("GET", path, nil, nil)
 	if err != nil {
 		return nil, err
@@ -129,7 +136,13 @@ func (c *Client) DataSource(id int64) (*DataSource, error) {
 	return result, err
 }
 
-func (c *Client) DeleteDataSource(id int64) error {
+func (c *Client) DeleteDataSource(id int64, orgID int64) error {
+
+	err := c.SwitchCurrentUserOrg(orgID)
+	if err != nil {
+		return err
+	}
+
 	path := fmt.Sprintf("/api/datasources/%d", id)
 	req, err := c.newRequest("DELETE", path, nil, nil)
 	if err != nil {

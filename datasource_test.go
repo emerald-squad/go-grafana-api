@@ -62,7 +62,7 @@ func TestNewDataSource(t *testing.T) {
 		},
 	}
 
-	created, err := client.NewDataSource(ds)
+	created, err := client.NewDataSource(ds, 1)
 	if err != nil {
 		t.Error(err)
 	}
