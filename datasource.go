@@ -110,7 +110,13 @@ func (c *Client) UpdateDataSource(s *DataSource, orgID int64) error {
 	return nil
 }
 
-func (c *Client) DataSource(id int64) (*DataSource, error) {
+func (c *Client) DataSource(id int64, orgID int64) (*DataSource, error) {
+
+	err := c.SwitchCurrentUserOrg(orgID)
+	if err != nil {
+		return nil, err
+	}
+
 	path := fmt.Sprintf("/api/datasources/%d", id)
 
 	req, err := c.newRequest("GET", path, nil, nil)
