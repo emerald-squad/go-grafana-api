@@ -52,7 +52,15 @@ func (c *Client) NewDataSource(s *DataSource, orgID int64) (int64, error) {
 		return 0, err
 	}
 
-	err = c.SwitchCurrentUserOrg(orgID)
+	uInfo := c.baseURL.User
+
+	username := uInfo.Username()
+
+	user, err := c.UserByEmail(username)
+
+	userId := user.Id
+
+	err = c.SwitchUserOrg(userId, orgID)
 	if err != nil {
 		return 0, err
 	}
@@ -84,7 +92,15 @@ func (c *Client) NewDataSource(s *DataSource, orgID int64) (int64, error) {
 
 func (c *Client) UpdateDataSource(s *DataSource, orgID int64) error {
 
-	err := c.SwitchCurrentUserOrg(orgID)
+	uInfo := c.baseURL.User
+
+	username := uInfo.Username()
+
+	user, err := c.UserByEmail(username)
+
+	userId := user.Id
+
+	err = c.SwitchUserOrg(userId, orgID)
 	if err != nil {
 		return err
 	}
@@ -112,11 +128,19 @@ func (c *Client) UpdateDataSource(s *DataSource, orgID int64) error {
 
 func (c *Client) DataSource(id int64, orgID int64) (*DataSource, error) {
 
-	err := c.SwitchCurrentUserOrg(orgID)
+	uInfo := c.baseURL.User
+
+	username := uInfo.Username()
+
+	user, err := c.UserByEmail(username)
+
+	userId := user.Id
+
+	err = c.SwitchUserOrg(userId, orgID)
+
 	if err != nil {
 		return nil, err
 	}
-
 	path := fmt.Sprintf("/api/datasources/%d", id)
 
 	req, err := c.newRequest("GET", path, nil, nil)
@@ -143,8 +167,15 @@ func (c *Client) DataSource(id int64, orgID int64) (*DataSource, error) {
 }
 
 func (c *Client) DeleteDataSource(id int64, orgID int64) error {
+	uInfo := c.baseURL.User
 
-	err := c.SwitchCurrentUserOrg(orgID)
+	username := uInfo.Username()
+
+	user, err := c.UserByEmail(username)
+
+	userId := user.Id
+
+	err = c.SwitchUserOrg(userId, orgID)
 	if err != nil {
 		return err
 	}
