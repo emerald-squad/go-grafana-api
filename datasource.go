@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"strconv"
 )
 
 type DataSource struct {
@@ -52,23 +53,12 @@ func (c *Client) NewDataSource(s *DataSource, orgID int64) (int64, error) {
 		return 0, err
 	}
 
-	uInfo := c.baseURL.User
-
-	username := uInfo.Username()
-
-	user, err := c.UserByEmail(username)
-
-	userId := user.Id
-
-	err = c.SwitchUserOrg(userId, orgID)
-	if err != nil {
-		return 0, err
-	}
-
 	req, err := c.newRequest("POST", "/api/datasources", nil, bytes.NewBuffer(data))
 	if err != nil {
 		return 0, err
 	}
+
+	req.Header.Set("X-Grafana-Org-Id", strconv.FormatInt(orgID, 10))
 
 	resp, err := c.Do(req)
 	if err != nil {
@@ -92,19 +82,6 @@ func (c *Client) NewDataSource(s *DataSource, orgID int64) (int64, error) {
 
 func (c *Client) UpdateDataSource(s *DataSource, orgID int64) error {
 
-	uInfo := c.baseURL.User
-
-	username := uInfo.Username()
-
-	user, err := c.UserByEmail(username)
-
-	userId := user.Id
-
-	err = c.SwitchUserOrg(userId, orgID)
-	if err != nil {
-		return err
-	}
-
 	path := fmt.Sprintf("/api/datasources/%d", s.Id)
 	data, err := json.Marshal(s)
 	if err != nil {
@@ -114,6 +91,8 @@ func (c *Client) UpdateDataSource(s *DataSource, orgID int64) error {
 	if err != nil {
 		return err
 	}
+
+	req.Header.Set("X-Grafana-Org-Id", strconv.FormatInt(orgID, 10))
 
 	resp, err := c.Do(req)
 	if err != nil {
@@ -128,25 +107,14 @@ func (c *Client) UpdateDataSource(s *DataSource, orgID int64) error {
 
 func (c *Client) DataSource(id int64, orgID int64) (*DataSource, error) {
 
-	uInfo := c.baseURL.User
-
-	username := uInfo.Username()
-
-	user, err := c.UserByEmail(username)
-
-	userId := user.Id
-
-	err = c.SwitchUserOrg(userId, orgID)
-
-	if err != nil {
-		return nil, err
-	}
 	path := fmt.Sprintf("/api/datasources/%d", id)
 
 	req, err := c.newRequest("GET", path, nil, nil)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Set("X-Grafana-Org-Id", strconv.FormatInt(orgID, 10))
 
 	resp, err := c.Do(req)
 	if err != nil {
@@ -167,24 +135,14 @@ func (c *Client) DataSource(id int64, orgID int64) (*DataSource, error) {
 }
 
 func (c *Client) DeleteDataSource(id int64, orgID int64) error {
-	uInfo := c.baseURL.User
-
-	username := uInfo.Username()
-
-	user, err := c.UserByEmail(username)
-
-	userId := user.Id
-
-	err = c.SwitchUserOrg(userId, orgID)
-	if err != nil {
-		return err
-	}
 
 	path := fmt.Sprintf("/api/datasources/%d", id)
 	req, err := c.newRequest("DELETE", path, nil, nil)
 	if err != nil {
 		return err
 	}
+
+	req.Header.Set("X-Grafana-Org-Id", strconv.FormatInt(orgID, 10))
 
 	resp, err := c.Do(req)
 	if err != nil {
